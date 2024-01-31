@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * @file Contains the ray class.
  * @author Marcus Bartlett
@@ -9,7 +7,7 @@
 const COLOR = "#00ff00";
 
 /** A class describing a ray. */
-class Ray {
+export default class Ray {
     /**
      * Constructs a Ray object.
      * @param theX {number} - The tail's x-coordinate.

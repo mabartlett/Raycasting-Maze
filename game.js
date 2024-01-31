@@ -1,9 +1,12 @@
-"use strict";
-
 /**
  * @file Contains the game class.
  * @author Marcus Bartlett
  */
+
+import Camera from "./camera.js";
+import Ray from "./ray.js";
+import { TILE_SIZE } from "./main.js";
+import World from "./world.js";
 
 /** A 2D array of tiles. A 0 represents emptiness and 1 represents a wall. */
 const ROOM = [
@@ -24,12 +27,6 @@ const ROOM = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
 
-/**
- * The "resolution" of the tiles in world units. Lower numbers mean higher
- * performance but lower visual accuracy.
- */
-const TILE_SIZE = 64;
-
 /** The x-coordinate of where the camera starts. */
 const START_X = 7;
 
@@ -37,7 +34,7 @@ const START_X = 7;
 const START_Y = 7;
 
 /** Describes a game class, which starts and updates the game and objects. */
-class Game {
+export default class Game {
     /** Constructs a game instance. */
     constructor() {
         let w = new World(ROOM, TILE_SIZE);

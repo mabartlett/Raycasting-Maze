@@ -1,18 +1,10 @@
-"use strict";
-
 /**
  * @file Contains the camera class and associated constants.
  * @author Marcus Bartlett
  */
 
-/** The ID of the canvas element. */
-const CANVAS_ID = "Canvas";
-
-/** The canvas's width in pixels */
-const SCREEN_WIDTH = 640;
-
-/** The canvas's height in pixels. */
-const SCREEN_HEIGHT = 480;
+import { CANVAS_ID, SCREEN_WIDTH, SCREEN_HEIGHT, TILE_SIZE } from "./main.js";
+import Ray from "./ray.js";
 
 /** The colors of the faces of the walls. */
 const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
@@ -36,7 +28,7 @@ const SLIDE = 0.1;
 const DEBUG = false;
 
 /** Describes a camera. */
-class Camera {
+export default class Camera {
     /**
      * Constructs a Camera instance.
      * @param theRay {Ray} - The camera's position and angle.

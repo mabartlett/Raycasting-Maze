@@ -1,10 +1,25 @@
-"use strict";
-
 /**
  * @file Contains the main function that drives the program. It instantiates all
  * the necessary objects to build the game and run it.
  * @author Marcus Bartlett
  */
+
+import Game from "./game.js";
+
+/** The ID of the canvas element. */
+export const CANVAS_ID = "Canvas";
+
+/** The canvas's width in pixels */
+export const SCREEN_WIDTH = 640;
+
+/** The canvas's height in pixels. */
+export const SCREEN_HEIGHT = 480;
+
+/**
+ * The "resolution" of the tiles in world units. Lower numbers mean higher
+ * performance but lower visual accuracy.
+ */
+export const TILE_SIZE = 64;
 
 /** Drives the program. */
 function main() {

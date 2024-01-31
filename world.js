@@ -1,14 +1,13 @@
-"use strict";
-
 /**
  * @file Contains the world class.
  * @author Marcus Bartlett
  */
 
+/** The colors of the world when drawn top-down. */
 const TOP_DOWN_COLORS = ["#000000", "#0000ff"];
 
 /** Describes the game world. */
-class World {
+export default class World {
     /**
      * Constructs a world.
      * @param theTilemap {Array} - A 2D array of numbers representing the tiles.
