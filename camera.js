@@ -165,13 +165,13 @@ export default class Camera {
             while (x_flag || y_flag) {
                 let u = SLIDE * Math.sign(theX);
                 let v = SLIDE * Math.sign(theY);
-                if (Math.abs(u) > 0 && Math.abs(t_x + u) <= Math.abs(theX) &&
+                if (u != 0 && Math.abs(t_x + u) <= Math.abs(theX) &&
                         !w.checkCollCirc(this.x + t_x + u, this.y + t_y, size)) {
                     t_x += u;
                 } else {
                     x_flag = false;
                 }
-                if (Math.abs(v) > 0 && Math.abs(t_y + v) <= Math.abs(theY) &&
+                if (v != 0 && Math.abs(t_y + v) <= Math.abs(theY) &&
                         !w.checkCollCirc(this.x + t_x, this.y + t_y + v, size)) {
                     t_y += v;
                 } else {
