@@ -13,7 +13,7 @@ const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
 const ANGLE_DELTA = Math.PI;
 
 /** The amount the position changes per second when a key is down. */
-const POS_DELTA = 125;
+const POS_DELTA = 48;
 
 /** The maximum allowed length of the ray in world units. */
 const DRAW_DISTANCE = 2048;
@@ -165,13 +165,13 @@ export default class Camera {
             while (x_flag || y_flag) {
                 let u = SLIDE * Math.sign(theX);
                 let v = SLIDE * Math.sign(theY);
-                if (Math.abs(t_x + u) <= Math.abs(theX) &&
+                if (Math.abs(u) > 0 && Math.abs(t_x + u) <= Math.abs(theX) &&
                         !w.checkCollCirc(this.x + t_x + u, this.y + t_y, size)) {
                     t_x += u;
                 } else {
                     x_flag = false;
                 }
-                if (Math.abs(t_y + v) <= Math.abs(theY) &&
+                if (Math.abs(v) > 0 && Math.abs(t_y + v) <= Math.abs(theY) &&
                         !w.checkCollCirc(this.x + t_x, this.y + t_y + v, size)) {
                     t_y += v;
                 } else {
