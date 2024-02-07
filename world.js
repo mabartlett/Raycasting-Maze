@@ -57,11 +57,12 @@ export default class World {
     drawWorld() {
         const canvas = document.querySelector("canvas");
         const ctx = canvas.getContext("2d", {alpha: "false"});
-        for (let i = 0; i < this._tilemap.length; i++) {
-            for (let j = 0; j < this._tilemap[i].length; j++) {
-                if (this._tilemap[i][j] !== 0) {
-                    ctx.fillStyle = TOP_DOWN_COLORS[this._tilemap[i][j]];
-                    ctx.fillRect(j, i, 1, 1);
+        const s = this._tilesize;
+        for (let i = 0; i < this._array.length; i++) {
+            for (let j = 0; j < this._array[i].length; j++) {
+                if (this._array[i][j] !== 0) {
+                    ctx.fillStyle = TOP_DOWN_COLORS[this._array[i][j]];
+                    ctx.fillRect(j * s, i * s, s, s);
                 }
             }
         }

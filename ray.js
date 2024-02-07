@@ -66,65 +66,113 @@ export default class Ray {
         let rv_x = null;
         let rv_y = null
         let rv_face = null;
-        // Horizontal multiplier
-        let hm = 1;
-        // Vertical multiplier
-        let vm = 1;
-        let tan_tot = 0;
-        let cot_tot = 0;
         let short_flag = true;
         let collide_flag = false;
         let tip_x = this._x;
         let tip_y = this._y;
-        let abs_tan = Math.abs(Math.tan(this._theta));
-        let sign_sin = Math.sign(Math.sin(this._theta));
-        let abs_cot = Math.abs(1 / Math.tan(this._theta));
-        let sign_cos = Math.sign(Math.cos(this._theta));
-        let tan_hyp = Math.sqrt(1 + (abs_tan ** 2));
-        let cot_hyp = Math.sqrt(1 + (abs_cot ** 2));
+        const sign_sin = Math.sign(Math.sin(this._theta));
+        const sign_cos = Math.sign(Math.cos(this._theta));
+        let distance = 0;
+        let test_x = 0;
+        let test_y = 0;
         while (short_flag && !collide_flag) {
-            while (tan_tot + tan_hyp <= cot_tot + cot_hyp && short_flag &&
-                    !collide_flag) {
-                // Add new segment one horizontal unit long and tan(θ) high.
-                tip_x = this._x + (hm * sign_cos);
-                tip_y = this._y + (hm * abs_tan * sign_sin);
-                hm++;
-                tan_tot += tan_hyp;
-                // Check for length and collision.
-                if (tan_tot + 1 >= this._dist) {
+            let x_near = this.nearestGrid(tip_x, tip_y, this._theta, false);
+            let y_near = this.nearestGrid(tip_x, tip_y, this._theta, true);
+            let x_dist = Math.hypot(tip_x - x_near[0], tip_y - x_near[1]);
+            let y_dist = Math.hypot(tip_x - y_near[0], tip_y - y_near[1]);
+            if (y_dist == 0 || x_dist < y_dist) {
+                tip_x = x_near[0];
+                tip_y = x_near[1];
+                distance += x_dist;
+                if (distance + 1 >= this._dist) {
                     short_flag = false;
-                } else if (this._world.checkCollision(tip_x + sign_cos, tip_y)) {
-                    rv_x = tip_x + sign_cos;
-                    rv_y = tip_y;
-                    rv_face = 2;
-                    if (sign_cos === -1) {
-                        rv_face = 0;
-                    }
-                    collide_flag = true;
-                }
-            }
-            while (cot_tot + cot_hyp <= tan_tot + tan_hyp && short_flag &&
-                    !collide_flag) {
-                // Add new segment one vertical unit high and cot(θ) long.
-                tip_x = this._x + (vm * abs_cot * sign_cos);
-                tip_y = this._y + (vm * sign_sin);
-                vm++;
-                cot_tot += cot_hyp;
-                // Check for length and collision.
-                if (cot_tot + 1 >= this._dist) {
-                    short_flag = false;
-                } else if (this._world.checkCollision(tip_x, tip_y + sign_sin)) {
-                    rv_x = tip_x;
-                    rv_y = tip_y + sign_sin;
-                    rv_face = 3;
+                } else {
+                    test_x = tip_x;
                     if (sign_sin === -1) {
-                        rv_face = 1;
+                        test_y = Math.floor(tip_y);
+                    } else {
+                        test_y = Math.ceil(tip_y);
                     }
-                    collide_flag = true;
+                    if (this._world.checkCollision(test_x + sign_cos, test_y)) {
+                        rv_x = tip_x + sign_cos;
+                        rv_y = tip_y + sign_sin;
+                        if (sign_cos === -1) {
+                            rv_face = 0;
+                        } else {
+                            rv_face = 2;
+                        }
+                        collide_flag = true;
+                    }
+                }
+            } else {
+                tip_x = y_near[0];
+                tip_y = y_near[1];
+                distance += y_dist;
+                if (distance + 1 >= this._dist) {
+                    short_flag = false;
+                } else {
+                    test_y = tip_y;
+                    if (sign_cos === -1) {
+                        test_x = Math.floor(tip_x);
+                    } else {
+                        test_x = Math.ceil(tip_x);
+                    }
+                    if (this._world.checkCollision(test_x, test_y + sign_sin)) {
+                        rv_x = tip_x + sign_cos;
+                        rv_y = tip_y + sign_sin;
+                        if (sign_sin === -1) {
+                            rv_face = 1;
+                        } else {
+                            rv_face = 3;
+                        }
+                        collide_flag = true;
+                    }
                 }
             }
         }
         return [rv_x, rv_y, rv_face];
+    }
+
+    /** 
+     * Finds the ray's nearest intersection with the grid.
+     * @param
+     * @param
+     * @param
+     * @param theYSnap {boolean} - Whether to snap to the y-coordinate.
+     * @returns 
+     */
+    nearestGrid(theX, theY, theTheta, theYSnap) {
+        let rv_x = theX;
+        let rv_y = theY;
+        const b = (theY - Math.tan(theTheta) * theX);
+        const sin = Math.sin(theTheta);
+        const cos = Math.cos(theTheta);
+        if (theYSnap) {
+            if (Number.isInteger(theY)) {
+                rv_y = theY + Math.sign(sin);
+            } else {
+                if (sin < 0) {
+                    rv_y = Math.floor(theY);
+                } else {
+                    rv_y = Math.ceil(theY);
+                }
+            }
+            if (!Number.isInteger(theY) || theTheta != 0) {
+                rv_x = (rv_y - b) / Math.tan(theTheta);
+            }
+        } else {
+            if (Number.isInteger(theX)) {
+                rv_x = theX + Math.sign(cos);
+            } else {
+                if (cos < 0) {
+                    rv_x = Math.floor(theX);
+                } else {
+                    rv_x = Math.ceil(theX);
+                }
+            }
+            rv_y = (Math.tan(theTheta) * rv_x) + b;
+        }
+        return [rv_x, rv_y];
     }
 
     /** @returns {number} The ray's angle. */

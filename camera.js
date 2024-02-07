@@ -13,10 +13,10 @@ const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
 const ANGLE_DELTA = Math.PI;
 
 /** The amount the position changes per second when a key is down. */
-const POS_DELTA = 48;
+const POS_DELTA = 24;
 
 /** The maximum allowed length of the ray in world units. */
-const DRAW_DISTANCE = 2048;
+const DRAW_DISTANCE = 256;
 
 /** The ratio of tilesize to bounding box radius. */
 const BOUND_RATIO = 0.3;
@@ -25,7 +25,7 @@ const BOUND_RATIO = 0.3;
 const SLIDE = 0.1;
 
 /** Whether to draw a top-down view of the world and rays instead of columns. */
-const DEBUG = false;
+const DEBUG = true;
 
 /** Describes a camera. */
 export default class Camera {
@@ -73,6 +73,21 @@ export default class Camera {
             ctx.lineTo(this._cam_ray.x + (size * Math.cos(this._cam_ray.theta)),
                     this._cam_ray.y + (size * Math.sin(this._cam_ray.theta)));
             ctx.stroke();
+            // Draw dots where rays hit walls.
+            const w_to_px = SCREEN_WIDTH / TILE_SIZE;
+            for (let i = 0; i < SCREEN_WIDTH; i++) {
+                let nmtor = i - (0.5 * SCREEN_WIDTH);
+                let angle = Math.atan(nmtor / (0.5 * TILE_SIZE * w_to_px));
+                this._draw_ray.theta = angle + this._cam_ray.theta;
+                let collision = this._draw_ray.seekCollision();
+                let distance = 0;
+                if (collision[0] !== null && collision[1] !== null) {                
+                    distance = Math.hypot(this._draw_ray.x - collision[0], 
+                            this._draw_ray.y - collision[1]);
+                }
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(collision[0], collision[1], 1, 1);
+            }
         } else {
             ctx.fillStyle = "#aaaaaa";
             ctx.fillRect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
@@ -81,18 +96,19 @@ export default class Camera {
             const w_to_px = SCREEN_WIDTH / TILE_SIZE;
             // Loop across the width of the screen.
             for (let i = 0; i < SCREEN_WIDTH; i++) {
-                let nmtor = i - (0.5 * SCREEN_WIDTH);
-                let angle = Math.atan(nmtor / (0.5 * TILE_SIZE * w_to_px));
+                const nmtor = i - (0.5 * SCREEN_WIDTH);
+                const angle = Math.atan(nmtor / (0.5 * TILE_SIZE * w_to_px));
                 this._draw_ray.theta = angle + this._cam_ray.theta;
-                let collision = this._draw_ray.seekCollision();
+                const collision = this._draw_ray.seekCollision();
                 let distance = 0;
                 if (collision[0] !== null && collision[1] !== null) {
-                    distance = Math.hypot(this._draw_ray.x - collision[0],
-                            this._draw_ray.y - collision[1]);
+                    const x_comp = this._draw_ray.x - collision[0];
+                    const y_comp = this._draw_ray.y - collision[1];
+                    distance = Math.hypot(x_comp, y_comp);
                 }
                 // I'm not sure where the 4 came from but it works.
-                let line_height = SCREEN_WIDTH * TILE_SIZE / (Math.cos(angle) *
-                        4 * distance);
+                const line_height = SCREEN_WIDTH * TILE_SIZE / 
+                        (Math.cos(angle) * 4 * distance);
                 ctx.beginPath();
                 ctx.strokeStyle = COLORS[collision[2]];
                 ctx.moveTo(i + 0.5, (SCREEN_HEIGHT / 2) - line_height);
@@ -153,8 +169,8 @@ export default class Camera {
             throw new Error("Camera.move passed null type.");
         }
         // Give world an alias for more readable code.
-        let w = this._cam_ray.world;
-        let size = w.tilesize * BOUND_RATIO;
+        const w = this._cam_ray.world;
+        const size = w.tilesize * BOUND_RATIO;
         // If the new position is not free...
         if (w.checkCollCirc(this.x + theX, this.y + theY, size)) {
             // Find the position where the bounding box no longer collides.
@@ -208,5 +224,19 @@ export default class Camera {
     set y(theY) {
         this._cam_ray.y = theY;
         this._draw_ray.y = theY;
+    }
+
+    debugFunction() {
+        const w_to_px = SCREEN_WIDTH / TILE_SIZE;
+        console.clear(); 
+        for (let i = 0; i < SCREEN_WIDTH; i++) {
+            let nmtor = i - (0.5 * SCREEN_WIDTH);
+            let angle = Math.atan(nmtor / (0.5 * TILE_SIZE * w_to_px));
+            this._draw_ray.theta = angle + this._cam_ray.theta;
+            const collision = this._draw_ray.seekCollision();
+            const snap = this._draw_ray.nearestGrid();
+            console.log(`face: ${collision[2]}, ` + 
+                        `x: ${collision[0]}, y: ${collision[1]}`);
+        }
     }
 }
