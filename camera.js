@@ -25,7 +25,7 @@ const BOUND_RATIO = 0.3;
 const SLIDE = 0.1;
 
 /** Whether to draw a top-down view of the world and rays instead of columns. */
-const DEBUG = true;
+const DEBUG = false;
 
 /** Describes a camera. */
 export default class Camera {
