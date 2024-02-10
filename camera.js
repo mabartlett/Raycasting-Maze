@@ -12,17 +12,17 @@ const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
 /** The amount the angle changes per second when a key is down. */
 const ANGLE_DELTA = Math.PI;
 
-/** The amount the position changes per second when a key is down. */
-const POS_DELTA = 24;
+/** The the camera's speed in tiles per second. */
+const POS_DELTA = 1.5;
 
-/** The maximum allowed length of the ray in world units. */
-const DRAW_DISTANCE = 256;
+/** The maximum allowed length of the ray in tiles. */
+const DRAW_DISTANCE = 16;
 
 /** The ratio of tilesize to bounding box radius. */
 const BOUND_RATIO = 0.3;
 
-/** The length of world units to "slide" out of collision boundaries. */
-const SLIDE = 0.1;
+/** The length of world units to "slide" against walls when colliding. */
+const SLIDE = 0.005;
 
 /** Whether to draw a top-down view of the world and rays instead of columns. */
 const DEBUG = false;
@@ -36,14 +36,14 @@ export default class Camera {
     constructor(theRay) {
         if (theRay === null) {
             throw new Error("Camera's constructor passed null Ray argument.");
-        } else if (typeof theRay !== "object") {
+        } else if (!(theRay instanceof Ray)) {
             throw new Error("Camera's contructor must be passed an object.");
         } else {
             /** The camera's position and rotation. */
             this._cam_ray = theRay;
             /** The ray that loops across the screen to draw the columns. */
             this._draw_ray = new Ray(theRay.x, theRay.y, theRay.theta,
-                    theRay.world, DRAW_DISTANCE);
+                    theRay.world, DRAW_DISTANCE * TILE_SIZE);
             /**
              * Since the camera is the only object responding to keyboard input,
              * I thought I'd get away with putting this here.
@@ -139,22 +139,26 @@ export default class Camera {
         // Handle input.
         if (this._keymap["ArrowLeft"]) {
             this._cam_ray.theta -= ANGLE_DELTA * theDelta;
+            this.updateCanvas();
         }
         if (this._keymap["ArrowRight"]) {
             this._cam_ray.theta += ANGLE_DELTA * theDelta;
+            this.updateCanvas();
         }
         if (this._keymap["ArrowUp"]) {
-            let x_comp = POS_DELTA * (Math.cos(this._cam_ray.theta)) * theDelta;
-            let y_comp = POS_DELTA * (Math.sin(this._cam_ray.theta)) * theDelta;
+            let l = POS_DELTA * theDelta * TILE_SIZE;
+            let x_comp = l * (Math.cos(this._cam_ray.theta));
+            let y_comp = l * (Math.sin(this._cam_ray.theta));
             this.move(x_comp, y_comp);
+            this.updateCanvas();
         }
         if (this._keymap["ArrowDown"]) {
-            let x_comp = -POS_DELTA * (Math.cos(this._cam_ray.theta)) * theDelta;
-            let y_comp = -POS_DELTA * (Math.sin(this._cam_ray.theta)) * theDelta;
+            let l = -POS_DELTA * theDelta * TILE_SIZE;
+            let x_comp = l * (Math.cos(this._cam_ray.theta));
+            let y_comp = l * (Math.sin(this._cam_ray.theta));
             this.move(x_comp, y_comp);
+            this.updateCanvas();
         }
-        // Draw screen.
-        this.updateCanvas();
     }
 
     /**

@@ -3,6 +3,8 @@
  * @author Marcus Bartlett
  */
 
+import World from "./world.js";
+
 /** The color of the ray when drawn with drawRay. */
 const COLOR = "#00ff00";
 
@@ -26,8 +28,7 @@ export default class Ray {
             throw new Error("Ray's constructor passed non-numeric y-value");
         } else if (typeof theTheta !== "number") {
             throw new Error("Ray passed non-numeric theta value.");
-        } else if (typeof theWorld !== "object" &&
-                (!theWorld.hasOwnProperty("tilemap"))) {
+        } else if (!(theWorld instanceof World)) {
             throw new Error("Ray not passed a World-type argument.");
         } else {
             this._x = theX;
@@ -80,6 +81,7 @@ export default class Ray {
             let y_near = this.nearestGrid(tip_x, tip_y, this._theta, true);
             let x_dist = Math.hypot(tip_x - x_near[0], tip_y - x_near[1]);
             let y_dist = Math.hypot(tip_x - y_near[0], tip_y - y_near[1]);
+            // TODO: Fix all the copied code!
             if (y_dist == 0 || x_dist < y_dist) {
                 tip_x = x_near[0];
                 tip_y = x_near[1];
@@ -87,15 +89,19 @@ export default class Ray {
                 if (distance + 1 >= this._dist) {
                     short_flag = false;
                 } else {
-                    test_x = tip_x;
-                    if (sign_sin === -1) {
-                        test_y = Math.floor(tip_y);
+                    if (sign_cos === -1) {
+                        test_x = tip_x - 1;
                     } else {
-                        test_y = Math.ceil(tip_y);
+                        test_x = tip_x;
                     }
-                    if (this._world.checkCollision(test_x + sign_cos, test_y)) {
-                        rv_x = tip_x + sign_cos;
-                        rv_y = tip_y + sign_sin;
+                    if (sign_sin === -1) {
+                        test_y = Math.ceil(tip_y - 1);
+                    } else {
+                        test_y = Math.floor(tip_y);
+                    }
+                    if (this._world.checkCollision(test_x, test_y)) {
+                        rv_x = tip_x;
+                        rv_y = tip_y;
                         if (sign_cos === -1) {
                             rv_face = 0;
                         } else {
@@ -111,16 +117,28 @@ export default class Ray {
                 if (distance + 1 >= this._dist) {
                     short_flag = false;
                 } else {
-                    test_y = tip_y;
                     if (sign_cos === -1) {
-                        test_x = Math.floor(tip_x);
+                        test_x = Math.ceil(tip_x - 1);
                     } else {
-                        test_x = Math.ceil(tip_x);
+                        test_x = Math.floor(tip_x);
                     }
-                    if (this._world.checkCollision(test_x, test_y + sign_sin)) {
-                        rv_x = tip_x + sign_cos;
-                        rv_y = tip_y + sign_sin;
-                        if (sign_sin === -1) {
+                    if (sign_sin === -1) {
+                        test_y = tip_y -1;
+                    } else {
+                        test_y = tip_y;
+                    }
+                    if (this._world.checkCollision(test_x, test_y)) {
+                        rv_x = tip_x;
+                        rv_y = tip_y;
+                        if (x_dist === y_dist && 
+                            this._world.checkCollision(test_x + sign_cos, test_y)) {
+                            // We are nesting far too many if statements here!
+                            if (sign_cos === -1) {
+                                rv_face = 0;
+                            } else {
+                                rv_face = 2;
+                            }
+                        } else if (sign_sin === -1) {
                             rv_face = 1;
                         } else {
                             rv_face = 3;

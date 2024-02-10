@@ -21,7 +21,7 @@ export const SCREEN_HEIGHT = 480;
  * The "resolution" of the tiles in world units. Lower numbers mean higher
  * performance but lower visual accuracy.
  */
-export const TILE_SIZE = 16;
+export const TILE_SIZE = 2;
 
 /** Drives the program. */
 function main() {
