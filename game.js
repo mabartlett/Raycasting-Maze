@@ -5,7 +5,6 @@
 
 import Camera from "./camera.js";
 import Ray from "./ray.js";
-import { TILE_SIZE } from "./main.js";
 import World from "./world.js";
 
 /** A 2D array of tiles. A 0 represents emptiness and 1 represents a wall. */
@@ -37,13 +36,12 @@ const START_Y = 7;
 export default class Game {
     /** Constructs a game instance. */
     constructor() {
-        let w = new World(ROOM, TILE_SIZE);
-        let c_x = Math.floor((START_X + 0.5) * TILE_SIZE);
-        let c_y = Math.floor((START_Y + 0.5) * TILE_SIZE);
+        let w = new World(ROOM);
+        let c_x = START_X + 0.5;
+        let c_y = START_Y + 0.5;
         let c_a = 0;
         /** The camera that does the looking and--yes--the drawing. */
-        this._cam = new Camera(new Ray(c_x, c_y, c_a, w, TILE_SIZE *
-                                       ROOM.length));
+        this._cam = new Camera(new Ray(c_x, c_y, c_a, w, ROOM.length));
         /** The time at which the previous frame was drawn. */
         this._prev_frame = 0;
     }

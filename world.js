@@ -6,46 +6,28 @@
 /** The colors of the world when drawn top-down. */
 const TOP_DOWN_COLORS = ["#000000", "#0000ff"];
 
+/** How width and height, in pixels, to draw each square on screen in pixels. */
+const DRAW_SIZE = 16;
+
 /** Describes the game world. */
 export default class World {
     /**
      * Constructs a world.
      * @param theTilemap {Array} - A 2D array of numbers representing the tiles.
-     * @param theSize {Number} - The "resolution" of each tile in world 
      * units.
      */
-    constructor(theTilemap, theSize) {
-        if (theTilemap === null || theSize === null) {
+    constructor(theTilemap) {
+        if (theTilemap === null) {
             throw new Error("World constructor passed null argument(s).");
         } else if (!Array.isArray(theTilemap)) {
             throw new Error("World constructor not passed array.");
-        } else if (typeof theSize !== "number") {
-            throw new Error("World constructor not passed number.");
         } else {
-            this._tilemap = new Array(theTilemap.length * theSize);
-            this._tilesize = theSize;
-            /** Warning: this field is a reference! */
-            this._array = theTilemap;
+            this._tilemap = new Array(theTilemap.length);
+            // Make a deep copy of theTilemap.
             for (let i = 0; i < theTilemap.length; i++) {
-                if (theTilemap[i].length != theTilemap[0].length) {
-                    throw new Error("World constructor passed a jagged array.");
-                } else {
-                    // Form the first of a set of new rows.
-                    this._tilemap[i * theSize] = new Array(theTilemap[i].length * 
-                            theSize);
-                    for (let j = 0; j < theTilemap[i].length; j++) {
-                        for (let k = 0; k < theSize; k++) {
-                            this._tilemap[i * theSize][j * theSize + k] = 
-                                    theTilemap[i][j];
-                        }
-                    }
-                    // Duplicate that row.
-                    for (let j = i * theSize + 1; j < (i + 1) * theSize; j++) {
-                        this._tilemap[j] = new Array(this._tilemap[0].length);
-                        for (let k = 0; k < this._tilemap[0].length; k++) {
-                            this._tilemap[j][k] = this._tilemap[j - 1][k];
-                        }
-                    }
+                this._tilemap[i] = new Array(theTilemap[i].length);
+                for (let j = 0; j < theTilemap[i].length; j++) {
+                    this._tilemap[i][j] = theTilemap[i][j];
                 }
             }
         }
@@ -57,12 +39,12 @@ export default class World {
     drawWorld() {
         const canvas = document.querySelector("canvas");
         const ctx = canvas.getContext("2d", {alpha: "false"});
-        const s = this._tilesize;
-        for (let i = 0; i < this._array.length; i++) {
-            for (let j = 0; j < this._array[i].length; j++) {
-                if (this._array[i][j] !== 0) {
-                    ctx.fillStyle = TOP_DOWN_COLORS[this._array[i][j]];
-                    ctx.fillRect(j * s, i * s, s, s);
+        for (let i = 0; i < this._tilemap.length; i++) {
+            for (let j = 0; j < this._tilemap[i].length; j++) {
+                if (this._tilemap[i][j] !== 0) {
+                    ctx.fillStyle = TOP_DOWN_COLORS[this._tilemap[i][j]];
+                    ctx.fillRect(j * DRAW_SIZE, i * DRAW_SIZE, DRAW_SIZE, 
+                                 DRAW_SIZE);
                 }
             }
         }
@@ -102,14 +84,14 @@ export default class World {
         let i = 0;
         let j = 0;
         let flag = true;
-        while (i < this._array.length && flag) {
+        while (i < this._tilemap.length && flag) {
             j = 0;
-            while (j < this._array[i].length && flag) {
-                if (this._array[i][j] !== 0) {
-                    let x = j * this._tilesize;
-                    let y = i * this._tilesize;
-                    let x2 = x + this._tilesize;
-                    let y2 = y + this._tilesize;
+            while (j < this._tilemap[i].length && flag) {
+                if (this._tilemap[i][j] !== 0) {
+                    let x = j;
+                    let y = i;
+                    let x2 = x + 1;
+                    let y2 = y + 1;
                     let between_x = x <= theX && theX <= x2;
                     let between_y = y <= theY && theY <= y2;
                     // If the center is inside the box...
@@ -140,10 +122,5 @@ export default class World {
             i++;
         }
         return rv;
-    }
-    
-    /** @returns {number} - The tilesize. */
-    get tilesize() {
-        return this._tilesize;
     }
 }

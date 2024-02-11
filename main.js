@@ -5,8 +5,6 @@
  */
 
 import Game from "./game.js";
-import World from "./world.js";
-import Ray from "./ray.js";
 
 /** The ID of the canvas element. */
 export const CANVAS_ID = "Canvas";
@@ -16,12 +14,6 @@ export const SCREEN_WIDTH = 640;
 
 /** The canvas's height in pixels. */
 export const SCREEN_HEIGHT = 480;
-
-/**
- * The "resolution" of the tiles in world units. Lower numbers mean higher
- * performance but lower visual accuracy.
- */
-export const TILE_SIZE = 2;
 
 /** Drives the program. */
 function main() {

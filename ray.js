@@ -81,81 +81,100 @@ export default class Ray {
             let y_near = this.nearestGrid(tip_x, tip_y, this._theta, true);
             let x_dist = Math.hypot(tip_x - x_near[0], tip_y - x_near[1]);
             let y_dist = Math.hypot(tip_x - y_near[0], tip_y - y_near[1]);
-            // TODO: Fix all the copied code!
-            if (y_dist == 0 || x_dist < y_dist) {
+            if (y_dist === 0 || x_dist < y_dist) {
                 tip_x = x_near[0];
                 tip_y = x_near[1];
                 distance += x_dist;
-                if (distance + 1 >= this._dist) {
-                    short_flag = false;
-                } else {
-                    if (sign_cos === -1) {
-                        test_x = tip_x - 1;
-                    } else {
-                        test_x = tip_x;
-                    }
-                    if (sign_sin === -1) {
-                        test_y = Math.ceil(tip_y - 1);
-                    } else {
-                        test_y = Math.floor(tip_y);
-                    }
-                    if (this._world.checkCollision(test_x, test_y)) {
-                        rv_x = tip_x;
-                        rv_y = tip_y;
-                        if (sign_cos === -1) {
-                            rv_face = 0;
-                        } else {
-                            rv_face = 2;
-                        }
-                        collide_flag = true;
-                    }
-                }
             } else {
                 tip_x = y_near[0];
                 tip_y = y_near[1];
                 distance += y_dist;
-                if (distance + 1 >= this._dist) {
-                    short_flag = false;
+            }
+            if (distance >= this._dist) {
+                short_flag = false;
+            } else {
+                /* This system of rounding is in place to prevent rays from
+                 * skipping over wall corners. One must be subtracted in 
+                 * some directions to prevent the wrong square from being
+                 * checked. */
+                if (sign_cos === -1) {
+                    test_x = Math.ceil(tip_x - 1);
                 } else {
-                    if (sign_cos === -1) {
-                        test_x = Math.ceil(tip_x - 1);
-                    } else {
-                        test_x = Math.floor(tip_x);
-                    }
-                    if (sign_sin === -1) {
-                        test_y = tip_y -1;
-                    } else {
-                        test_y = tip_y;
-                    }
-                    if (this._world.checkCollision(test_x, test_y)) {
-                        rv_x = tip_x;
-                        rv_y = tip_y;
-                        if (x_dist === y_dist && 
-                            this._world.checkCollision(test_x + sign_cos, test_y)) {
-                            // We are nesting far too many if statements here!
-                            if (sign_cos === -1) {
-                                rv_face = 0;
-                            } else {
-                                rv_face = 2;
-                            }
-                        } else if (sign_sin === -1) {
-                            rv_face = 1;
-                        } else {
-                            rv_face = 3;
-                        }
-                        collide_flag = true;
-                    }
+                    test_x = Math.floor(tip_x);
+                }
+                if (sign_sin === -1) {
+                    test_y = Math.ceil(tip_y - 1);
+                } else {
+                    test_y = Math.floor(tip_y);
+                }
+                if (this._world.checkCollision(test_x, test_y)) {
+                    rv_x = tip_x;
+                    rv_y = tip_y;
+                    rv_face = this.determineFace(tip_x, tip_y, sign_cos, 
+                                                 sign_sin);
+                    collide_flag = true;
                 }
             }
         }
         return [rv_x, rv_y, rv_face];
     }
+    
+    /*
+     * A helper function that determines which face of a wall the ray hit. (Note
+     * that the x- and y-coordinates supplied here are where the tip actually is
+     * and not where the ray is checking for collisions.)
+     * @param theX {number} - The x-coordinate of the ray's tip.
+     * @param theY {number} - The y-coordinate of the ray's tip.
+     * @param theSignCos {number} - The sign of the cosine of the ray's angle.
+     * @param theSignSin {number} - The sign of the sine of the ray's angle.
+     * @return {number} - A number representing the face of the wall (see 
+     * documentation for seekCollision for details).
+     */
+    determineFace(theX, theY, theSignCos, theSignSin) {
+        let rv = 0;
+        if (typeof theX !== "number" || typeof theY !== "number" || 
+                typeof theSignCos !== "number" || 
+                typeof theSignSin !== "number") {
+            throw new Error("determineFace must be passed only numeric types.");
+        } else if (theSignCos !== -1 && theSignCos !== 0 && theSignCos !== 1) {
+            throw new Error("theSignCos must equal -1, 0, or 1");
+        } else if (theSignSin !== -1 && theSignSin !== 0 && theSignSin !== 1) {
+            throw new Error("theSignSin must equal -1, 0, or 1");
+        } else if (Number.isInteger(theX) && Number.isInteger(theY)) {
+            if (this._world.checkCollision(theX, theY)) {
+                if (this._world.checkCollision(theX - 1, theY)) {
+                    rv = 3;
+                } else {
+                    rv = 2;
+                }
+            } else {
+                if (this._world.checkCollision(theX - 1, theY)) {
+                    rv = 0;
+                } else {
+                    rv = 1;
+                }
+            }
+        } else if (Number.isInteger(theX)) {            
+            if (theSignCos === -1) {
+                rv = 0;
+            } else {
+                rv = 2;
+            }
+        } else if (Number.isInteger(theY)) {
+            if (theSignSin === -1) {
+                rv = 1
+            } else {
+                rv = 3;
+            }
+        }
+        return rv;
+    }
 
     /** 
      * Finds the ray's nearest intersection with the grid.
-     * @param
-     * @param
-     * @param
+     * @param theX {number} - The tip's current x-coordinate.
+     * @param theY {number} - The tip's current y-coordinate.
+     * @param theTheta {number} - The ray's angle in radians.
      * @param theYSnap {boolean} - Whether to snap to the y-coordinate.
      * @returns 
      */
