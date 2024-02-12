@@ -3,6 +3,7 @@
  * @author Marcus Bartlett
  */
 
+import { FOV_ID } from "./main.js";
 import Camera from "./camera.js";
 import Ray from "./ray.js";
 import World from "./world.js";
@@ -58,6 +59,11 @@ export default class Game {
         document.addEventListener("keyup", (event) => {
             this._cam.handleInput(event, false);
         });
+        document.querySelector(`#${FOV_ID}`).addEventListener("change", 
+                                                              (event) => {
+            this._cam.fov = event.target.value;
+            this._cam.updateCanvas();
+        })
         // The same goes for requestAnimationFrame.
         window.requestAnimationFrame((time) => {
             this.updateGame(time);

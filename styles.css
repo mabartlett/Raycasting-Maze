@@ -7,16 +7,34 @@ html {
     margin: 0;
 }
 
-main {
+body {
     min-height: 100vh;
     box-sizing: border-box;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+}
+
+fieldset {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: #555555;
+    margin-top: 0.5rem;
+    border: 0;
+    text-align: center;
+}
+
+input[type="number"] {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    width: 4rem;
+    margin-left: 0.5rem;
+    padding: 0.25rem;
+    border: 0;
+    border-bottom: 1px solid #aaaaaa;
 }
 
 #Canvas {
     border: 1px solid #aaaaaa;
     margin: 0 auto;
     display: block;
-    background-color: #00aaff;
 }

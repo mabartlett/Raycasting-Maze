@@ -3,7 +3,7 @@
  * @author Marcus Bartlett
  */
 
-import { CANVAS_ID, SCREEN_WIDTH, SCREEN_HEIGHT } from "./main.js";
+import { CANVAS_ID, SCREEN_WIDTH, SCREEN_HEIGHT, FOV_MIN, FOV_MAX } from "./main.js";
 import Ray from "./ray.js";
 
 /** The colors of the faces of the walls. */
@@ -53,6 +53,8 @@ export default class Camera {
              */
             this._keymap = {"ArrowLeft": false, "ArrowUp": false,
                             "ArrowRight": false, "ArrowDown": false};
+            /** The FOV of the camera in degrees. */
+            this._fov_d = Math.floor((FOV_MIN + FOV_MAX) / 2);
         }
     }
 
@@ -79,37 +81,41 @@ export default class Camera {
             ctx.stroke();
             // Draw dots where rays hit walls.
             for (let i = 0; i < SCREEN_WIDTH; i++) {
-                let nmtor = i - (0.5 * SCREEN_WIDTH);
-                let angle = Math.atan(nmtor / (0.5 * SCREEN_WIDTH));
+                let angle = Math.atan((2 * i / SCREEN_WIDTH ) - 1);
                 this._draw_ray.theta = angle + this._cam_ray.theta;
                 let collision = this._draw_ray.seekCollision();
-                let distance = 0;
+                let dist = 0;
                 if (collision[0] !== null && collision[1] !== null) {                
-                    distance = Math.hypot(this._draw_ray.x - collision[0], 
-                            this._draw_ray.y - collision[1]);
+                    dist = Math.hypot(this._draw_ray.x - collision[0], 
+                                      this._draw_ray.y - collision[1]);
                 }
                 ctx.fillStyle = "#ff0000";
                 ctx.fillRect(collision[0] * DRAW_SIZE, collision[1] * DRAW_SIZE, 
                              1, 1);
             }
         } else {
+            ctx.fillStyle = "#00aaff";
+            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
             ctx.fillStyle = "#aaaaaa";
             ctx.fillRect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
             ctx.lineWidth = 1;
+            const fov_r = (this._fov_d * Math.PI) / 180;
+            const vp_disp = 1 / (2 * Math.tan(fov_r / 2));
             // Loop across the width of the screen.
             for (let i = 0; i < SCREEN_WIDTH; i++) {
-                const nmtor = i - (0.5 * SCREEN_WIDTH);
-                const angle = Math.atan(nmtor / (0.5 * SCREEN_WIDTH));
+                const angle = Math.atan((i - 0.5 * SCREEN_WIDTH) / 
+                                        (vp_disp * SCREEN_WIDTH));
                 this._draw_ray.theta = angle + this._cam_ray.theta;
                 const collision = this._draw_ray.seekCollision();
-                let distance = 0;
+                let dist = 0;
                 if (collision[0] !== null && collision[1] !== null) {
                     const x_comp = this._draw_ray.x - collision[0];
                     const y_comp = this._draw_ray.y - collision[1];
-                    distance = Math.hypot(x_comp, y_comp);
+                    dist = Math.hypot(x_comp, y_comp);
                 }
                 // I'm not sure where the 4 came from but it works.
-                const line_height = SCREEN_WIDTH / (Math.cos(angle) * 4 * distance);
+                let line_height = SCREEN_WIDTH / (Math.cos(angle) * 4 * dist);
+                line_height *= Math.PI / (2 * fov_r);
                 ctx.beginPath();
                 ctx.strokeStyle = COLORS[collision[2]];
                 ctx.moveTo(i + 0.5, (SCREEN_HEIGHT / 2) - line_height);
@@ -184,13 +190,15 @@ export default class Camera {
                 let u = SLIDE * Math.sign(theX);
                 let v = SLIDE * Math.sign(theY);
                 if (u != 0 && Math.abs(t_x + u) <= Math.abs(theX) &&
-                        !w.checkCollCirc(this.x + t_x + u, this.y + t_y, BOUND_SIZE)) {
+                        !w.checkCollCirc(this.x + t_x + u, this.y + t_y, 
+                        BOUND_SIZE)) {
                     t_x += u;
                 } else {
                     x_flag = false;
                 }
                 if (v != 0 && Math.abs(t_y + v) <= Math.abs(theY) &&
-                        !w.checkCollCirc(this.x + t_x, this.y + t_y + v, BOUND_SIZE)) {
+                        !w.checkCollCirc(this.x + t_x, this.y + t_y + v, 
+                        BOUND_SIZE)) {
                     t_y += v;
                 } else {
                     y_flag = false;
@@ -226,5 +234,15 @@ export default class Camera {
     set y(theY) {
         this._cam_ray.y = theY;
         this._draw_ray.y = theY;
+    }
+
+    /** @param theFov {number} - The new FOV (in degrees). */
+    set fov(theFov) {
+        const f = Number(theFov);
+        if (isNaN(f) || f < FOV_MIN || f > FOV_MAX) {
+            this._fov_d = Math.floor((FOV_MIN + FOV_MAX) / 2);
+        } else {
+            this._fov_d = Math.floor(f);
+        }
     }
 }
