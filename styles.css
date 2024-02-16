@@ -27,7 +27,7 @@ fieldset {
 input[type="number"] {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     width: 4rem;
-    margin-left: 0.5rem;
+    margin: 0.5rem;
     padding: 0.25rem;
     border: 0;
     border-bottom: 1px solid #aaaaaa;

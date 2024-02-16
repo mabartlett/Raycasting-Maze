@@ -9,11 +9,23 @@ import Game from "./game.js";
 /** The ID of the canvas element. */
 export const CANVAS_ID = "Canvas";
 
-/** The canvas's width in pixels */
+/** The smallest allowed screen height or width in pixels. */
+export const SCREEN_MIN = 320;
+
+/** The largest allowed screen height or width in pixels. */
+export const SCREEN_MAX = 3840;
+
+/** The canvas's default width in pixels */
 export const SCREEN_WIDTH = 640;
 
-/** The canvas's height in pixels. */
+/** The canvas's default height in pixels. */
 export const SCREEN_HEIGHT = 480;
+
+/** The ID of the width slider input element. */
+export const WIDTH_ID = "Width";
+
+/** The ID of the height slider input element. */
+export const HEIGHT_ID = "Height";
 
 /** The FOV slider input element's ID. */
 export const FOV_ID = "FOV";
@@ -28,6 +40,7 @@ export const FOV_MAX = 90;
 function main() {
     setUpCanvas();
     setUpFOVSlider();
+    setUpDimensionSliders();
     let g = new Game();
     g.start();
 }
@@ -47,6 +60,13 @@ function setUpFOVSlider() {
     input.setAttribute("min", FOV_MIN);
     input.setAttribute("max", FOV_MAX);
     input.setAttribute("value", Math.floor((FOV_MIN + FOV_MAX) / 2));
+}
+
+function setUpDimensionSliders() {
+    const width_slider = document.querySelector(`#${WIDTH_ID}`);
+    width_slider.setAttribute("value", SCREEN_WIDTH);
+    const height_slider = document.querySelector(`#${HEIGHT_ID}`);
+    height_slider.setAttribute("value", SCREEN_HEIGHT);
 }
 
 main();

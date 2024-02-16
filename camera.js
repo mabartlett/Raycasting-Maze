@@ -3,23 +3,24 @@
  * @author Marcus Bartlett
  */
 
-import { CANVAS_ID, SCREEN_WIDTH, SCREEN_HEIGHT, FOV_MIN, FOV_MAX } from "./main.js";
+import { CANVAS_ID, SCREEN_MIN, SCREEN_MAX, SCREEN_WIDTH, SCREEN_HEIGHT, 
+         FOV_MIN, FOV_MAX} from "./main.js";
 import Ray from "./ray.js";
 
 /** The colors of the faces of the walls. */
 const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
 
 /** The amount the angle changes per second when a key is down. */
-const ANGLE_DELTA = Math.PI;
+const ANGLE_DELTA = Math.PI * 1.25;
 
-/** The the camera's speed in tiles per second. */
+/** The camera's speed in tiles per second. */
 const POS_DELTA = 1.5;
 
 /** The maximum allowed length of the ray in tiles. */
 const DRAW_DISTANCE = 16;
 
 /** The size of the camera's bounding box. */
-const BOUND_SIZE = 0.3;
+const BOUND_SIZE = 0.25;
 
 /** The length of world units to "slide" against walls when colliding. */
 const SLIDE = 0.0001;
@@ -55,6 +56,10 @@ export default class Camera {
                             "ArrowRight": false, "ArrowDown": false};
             /** The FOV of the camera in degrees. */
             this._fov_d = Math.floor((FOV_MIN + FOV_MAX) / 2);
+            /** The screen width in pixels. */
+            this._sw = SCREEN_WIDTH;
+            /** The screen height in pixels. */
+            this._sh = SCREEN_HEIGHT
         }
     }
 
@@ -62,7 +67,7 @@ export default class Camera {
     updateCanvas() {
         const canvas = document.querySelector(`#${CANVAS_ID}`);
         const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        ctx.clearRect(0, 0, this._sw, this._sh);
         if (DEBUG) {
             this._cam_ray.world.drawWorld();
             ctx.fillStyle = "#00ff00";
@@ -80,8 +85,8 @@ export default class Camera {
                       y + (size * Math.sin(this._cam_ray.theta)));
             ctx.stroke();
             // Draw dots where rays hit walls.
-            for (let i = 0; i < SCREEN_WIDTH; i++) {
-                let angle = Math.atan((2 * i / SCREEN_WIDTH ) - 1);
+            for (let i = 0; i < this._sw; i++) {
+                let angle = Math.atan((2 * i / this._sw ) - 1);
                 this._draw_ray.theta = angle + this._cam_ray.theta;
                 let collision = this._draw_ray.seekCollision();
                 let dist = 0;
@@ -95,16 +100,16 @@ export default class Camera {
             }
         } else {
             ctx.fillStyle = "#00aaff";
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
+            ctx.fillRect(0, 0, this._sw, this._sh / 2);
             ctx.fillStyle = "#aaaaaa";
-            ctx.fillRect(0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2);
+            ctx.fillRect(0, this._sh / 2, this._sw, this._sh / 2);
             ctx.lineWidth = 1;
             const fov_r = (this._fov_d * Math.PI) / 180;
             const vp_disp = 1 / (2 * Math.tan(fov_r / 2));
             // Loop across the width of the screen.
-            for (let i = 0; i < SCREEN_WIDTH; i++) {
-                const angle = Math.atan((i - 0.5 * SCREEN_WIDTH) / 
-                                        (vp_disp * SCREEN_WIDTH));
+            for (let i = 0; i < this._sw; i++) {
+                const angle = Math.atan((i - 0.5 * this._sw) / 
+                                        (vp_disp * this._sw));
                 this._draw_ray.theta = angle + this._cam_ray.theta;
                 const collision = this._draw_ray.seekCollision();
                 let dist = 0;
@@ -114,12 +119,12 @@ export default class Camera {
                     dist = Math.hypot(x_comp, y_comp);
                 }
                 // I'm not sure where the 4 came from but it works.
-                let line_height = SCREEN_WIDTH / (Math.cos(angle) * 4 * dist);
+                let line_height = this._sw / (Math.cos(angle) * 4 * dist);
                 line_height *= Math.PI / (2 * fov_r);
                 ctx.beginPath();
                 ctx.strokeStyle = COLORS[collision[2]];
-                ctx.moveTo(i + 0.5, (SCREEN_HEIGHT / 2) - line_height);
-                ctx.lineTo(i + 0.5, (SCREEN_HEIGHT / 2) + line_height);
+                ctx.moveTo(i + 0.5, (this._sh / 2) - line_height);
+                ctx.lineTo(i + 0.5, (this._sh / 2) + line_height);
                 ctx.stroke();
             }
         }
@@ -238,11 +243,29 @@ export default class Camera {
 
     /** @param theFov {number} - The new FOV (in degrees). */
     set fov(theFov) {
-        const f = Number(theFov);
-        if (isNaN(f) || f < FOV_MIN || f > FOV_MAX) {
+        if (isNaN(theFov) || theFov < FOV_MIN || theFov > FOV_MAX) {
             this._fov_d = Math.floor((FOV_MIN + FOV_MAX) / 2);
         } else {
-            this._fov_d = Math.floor(f);
+            this._fov_d = Math.floor(theFov);
+        }
+    }
+
+    /** @param theSw {number} - The new screen width (in pixels). */
+    set sw(theSw) {
+        if (isNaN(theSw) || theSw < SCREEN_MIN || theSw > SCREEN_MAX) {
+            this._sw = SCREEN_WIDTH;
+        } else {
+            this._sw = theSw;
+        }
+    }
+
+    /** @param theSh {number} - The new screen height (in pixels). */
+    set sh(theSh) {
+        if (isNaN(theSh) || theSh < SCREEN_MIN || theSh > SCREEN_MAX) {
+            // TODO: Update to scale with window.visualViewport.width
+            this._sh = SCREEN_HEIGHT;
+        } else {
+            this._sh = theSh;
         }
     }
 }

@@ -3,7 +3,8 @@
  * @author Marcus Bartlett
  */
 
-import { FOV_ID } from "./main.js";
+import { FOV_ID, WIDTH_ID, HEIGHT_ID, CANVAS_ID, SCREEN_MIN, 
+         SCREEN_MAX } from "./main.js";
 import Camera from "./camera.js";
 import Ray from "./ray.js";
 import World from "./world.js";
@@ -53,20 +54,28 @@ export default class Game {
         this._prev_frame = document.timeline.currentTime;
         /* Note to self: use this pattern when adding event listeners to bind
            "this" to the object containing the event handler. */
-        document.addEventListener("keydown", (event) => {
-            this._cam.handleInput(event, true);
+        document.addEventListener("keydown", (theEvent) => {
+            this._cam.handleInput(theEvent, true);
         });
-        document.addEventListener("keyup", (event) => {
-            this._cam.handleInput(event, false);
+        document.addEventListener("keyup", (theEvent) => {
+            this._cam.handleInput(theEvent, false);
         });
-        document.querySelector(`#${FOV_ID}`).addEventListener("change", 
-                                                              (event) => {
-            this._cam.fov = event.target.value;
+        document.querySelector(`#${FOV_ID}`).
+                addEventListener("change", (theEvent) => {
+            this._cam.fov = Number(theEvent.target.value);
             this._cam.updateCanvas();
-        })
+        });
+        document.querySelector(`#${WIDTH_ID}`).
+                addEventListener("change", (theEvent) => {
+            this.changeDimension(Number(theEvent.target.value), "width");
+        });
+        document.querySelector(`#${HEIGHT_ID}`).
+                addEventListener("change", (theEvent) => {
+            this.changeDimension(Number(theEvent.target.value), "height");
+        });
         // The same goes for requestAnimationFrame.
-        window.requestAnimationFrame((time) => {
-            this.updateGame(time);
+        window.requestAnimationFrame((theTime) => {
+            this.updateGame(theTime);
         });
     }
 
@@ -77,8 +86,31 @@ export default class Game {
     updateGame(theTime) {
         this._cam.update((theTime - this._prev_frame) / 1000);
         this._prev_frame = theTime;
-        window.requestAnimationFrame((time) => {
-            this.updateGame(time);
+        window.requestAnimationFrame((theTheTime) => {
+            this.updateGame(theTheTime);
         });
+    }
+
+    /**
+     * Changes the screen dimensions.
+     * @param {number} theNum - The new width or height of the screen.
+     * @param {string} theDim - Which dimension to change.
+     */
+    changeDimension(theNum, theDim) {
+        if (theNum < SCREEN_MIN) {
+            theNum = SCREEN_MIN
+        } else if (theNum > SCREEN_MAX) {
+            theNum = SCREEN_MAX;
+        }
+        if (theDim === "width") {
+            this._cam.sw = theNum;
+        } else if (theDim === "height") {
+            this._cam.sh = theNum;
+        } else {
+            throw new Error("Dimension must be 'width' or 'height.'");
+        }
+        document.querySelector(`#${CANVAS_ID}`)["style"][theDim] = `${theNum}px`;
+        document.querySelector(`#${CANVAS_ID}`).setAttribute(theDim, theNum);
+        this._cam.updateCanvas();
     }
 }
