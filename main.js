@@ -1,6 +1,6 @@
 /**
- * @file Contains the main function that drives the program. It instantiates all
- * the necessary objects to build the game and run it.
+ * @file Contains the main function that drives the program. It sets up the web
+ * page before instantiating the game and starting it.
  * @author Marcus Bartlett
  */
 
@@ -16,10 +16,10 @@ export const SCREEN_MIN = 320;
 export const SCREEN_MAX = 3840;
 
 /** The canvas's default width in pixels */
-export const SCREEN_WIDTH = 640;
+export const SCREEN_WIDTH = 800;
 
 /** The canvas's default height in pixels. */
-export const SCREEN_HEIGHT = 480;
+export const SCREEN_HEIGHT = 600;
 
 /** The ID of the width slider input element. */
 export const WIDTH_ID = "Width";
@@ -36,13 +36,23 @@ export const FOV_MIN = 60;
 /** The maximum allowed FOV in degrees. */
 export const FOV_MAX = 90;
 
+/** The ID of the checkbox for whether the game is textured. */
+export const TEXTURED_ID = "Textured";
+
+/** The path to the wall texture. */
+const WALL_TEXTURE = "brick1.jpg";
+
 /** Drives the program. */
 function main() {
     setUpCanvas();
     setUpFOVSlider();
     setUpDimensionSliders();
-    let g = new Game();
-    g.start();
+    const wall = new Image();
+    wall.src = WALL_TEXTURE;
+    wall.addEventListener("load", (theEvent) => {
+        let g = new Game(theEvent.target);
+        g.start();
+    });
 }
 
 /** Sets up the canvas according to dimensions specified in constants. */
@@ -62,6 +72,7 @@ function setUpFOVSlider() {
     input.setAttribute("value", Math.floor((FOV_MIN + FOV_MAX) / 2));
 }
 
+/** Sets up the dimension sliders according to constants. */
 function setUpDimensionSliders() {
     const width_slider = document.querySelector(`#${WIDTH_ID}`);
     width_slider.setAttribute("value", SCREEN_WIDTH);

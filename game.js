@@ -4,7 +4,7 @@
  */
 
 import { FOV_ID, WIDTH_ID, HEIGHT_ID, CANVAS_ID, SCREEN_MIN, 
-         SCREEN_MAX } from "./main.js";
+         SCREEN_MAX, TEXTURED_ID } from "./main.js";
 import Camera from "./camera.js";
 import Ray from "./ray.js";
 import World from "./world.js";
@@ -36,14 +36,18 @@ const START_Y = 7;
 
 /** Describes a game class, which starts and updates the game and objects. */
 export default class Game {
-    /** Constructs a game instance. */
-    constructor() {
+    /** 
+     * Constructs a game instance. 
+     * @param {HTMLImageElement} theTexture - The brick texture.
+     */
+    constructor(theTexture) {
         let w = new World(ROOM);
         let c_x = START_X + 0.5;
         let c_y = START_Y + 0.5;
         let c_a = 0;
         /** The camera that does the looking and--yes--the drawing. */
-        this._cam = new Camera(new Ray(c_x, c_y, c_a, w, ROOM.length));
+        this._cam = new Camera(new Ray(c_x, c_y, c_a, w, ROOM.length), 
+                               theTexture);
         /** The time at which the previous frame was drawn. */
         this._prev_frame = 0;
     }
@@ -73,6 +77,15 @@ export default class Game {
                 addEventListener("change", (theEvent) => {
             this.changeDimension(Number(theEvent.target.value), "height");
         });
+        document.querySelector(`#${TEXTURED_ID}`).
+                addEventListener("change", (theEvent) => {
+            if (theEvent.target.checked) {
+                this._cam.textured = true;
+            } else {
+                this._cam.textured = false;
+            }
+            this._cam.updateCanvas();
+        });
         // The same goes for requestAnimationFrame.
         window.requestAnimationFrame((theTime) => {
             this.updateGame(theTime);
@@ -81,7 +94,7 @@ export default class Game {
 
     /**
      * This function is the main game loop.
-     * @param theTime {number} - The timestamp of the end of the previous frame.
+     * @param {number} theTime - The timestamp of the end of the previous frame.
      */
     updateGame(theTime) {
         this._cam.update((theTime - this._prev_frame) / 1000);

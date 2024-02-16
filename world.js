@@ -13,7 +13,7 @@ const DRAW_SIZE = 16;
 export default class World {
     /**
      * Constructs a world.
-     * @param theTilemap {Array} - A 2D array of numbers representing the tiles.
+     * @param {Array} theTilemap - A 2D array of numbers representing the tiles.
      * units.
      */
     constructor(theTilemap) {
@@ -52,8 +52,8 @@ export default class World {
     
     /**
      * Checks a coordinate for a wall.
-     * @param theX {number} - The x-coordinate to test.
-     * @param theY {number} - The y-coordinate to test.
+     * @param {number} theX - The x-coordinate to test.
+     * @param {number} theY - The y-coordinate to test.
      * @returns {boolean} Whether the coordinate has a wall. Returns false if
      * the provided coordinates are out of bounds.
      */
@@ -74,9 +74,9 @@ export default class World {
     
     /**
      * Determines whether a given circle is colliding with (inside) a wall.
-     * @param theX {number} - The x-coordinate of the circle's center.
-     * @param theY {number} - The y-coordinate of the circle's center.
-     * @param theRad {number} - The circle's radius.
+     * @param {number} theX - The x-coordinate of the circle's center.
+     * @param {number} theY - The y-coordinate of the circle's center.
+     * @param {number} theRad - The circle's radius.
      * @returns {boolean} - Whether the circle is inside a wall.
      */
     checkCollCirc(theX, theY, theRad) {

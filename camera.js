@@ -10,6 +10,12 @@ import Ray from "./ray.js";
 /** The colors of the faces of the walls. */
 const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
 
+/** The color of the sky above the horizon. */
+const SKY_COLOR = "#00aaff";
+
+/** The color of the ground below the horizon. */
+const GROUND_COLOR = "#aaaaaa";
+
 /** The amount the angle changes per second when a key is down. */
 const ANGLE_DELTA = Math.PI * 1.25;
 
@@ -35,13 +41,16 @@ const DRAW_SIZE = 16;
 export default class Camera {
     /**
      * Constructs a Camera instance.
-     * @param theRay {Ray} - The camera's position and angle.
+     * @param {Ray} theRay - The camera's position and angle.
+     * @param {HTMLImageElement} theTexture - The brick texture.
      */
-    constructor(theRay) {
+    constructor(theRay, theTexture) {
         if (theRay === null) {
-            throw new Error("Camera's constructor passed null Ray argument.");
+            throw new Error("Camera passed null Ray argument.");
         } else if (!(theRay instanceof Ray)) {
-            throw new Error("Camera's contructor must be passed an object.");
+            throw new Error("Camera must be passed an object.");
+        } else if (!(theTexture instanceof HTMLImageElement)) {
+            throw new Error("Camera must be passed HTMLImageElement");
         } else {
             /** The camera's position and rotation. */
             this._cam_ray = theRay;
@@ -60,6 +69,10 @@ export default class Camera {
             this._sw = SCREEN_WIDTH;
             /** The screen height in pixels. */
             this._sh = SCREEN_HEIGHT
+            /** The brick texture. */
+            this._texture = theTexture;
+            /** Whether to draw textures (true) or solid colors (false). */
+            this._textured = true;
         }
     }
 
@@ -68,6 +81,7 @@ export default class Camera {
         const canvas = document.querySelector(`#${CANVAS_ID}`);
         const ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, this._sw, this._sh);
+        // Draw a top-down view for debugging.
         if (DEBUG) {
             this._cam_ray.world.drawWorld();
             ctx.fillStyle = "#00ff00";
@@ -98,10 +112,11 @@ export default class Camera {
                 ctx.fillRect(collision[0] * DRAW_SIZE, collision[1] * DRAW_SIZE, 
                              1, 1);
             }
+        // Or draw the actual first-person view for the game.
         } else {
-            ctx.fillStyle = "#00aaff";
+            ctx.fillStyle = SKY_COLOR;
             ctx.fillRect(0, 0, this._sw, this._sh / 2);
-            ctx.fillStyle = "#aaaaaa";
+            ctx.fillStyle = GROUND_COLOR;
             ctx.fillRect(0, this._sh / 2, this._sw, this._sh / 2);
             ctx.lineWidth = 1;
             const fov_r = (this._fov_d * Math.PI) / 180;
@@ -121,11 +136,35 @@ export default class Camera {
                 // I'm not sure where the 4 came from but it works.
                 let line_height = this._sw / (Math.cos(angle) * 4 * dist);
                 line_height *= Math.PI / (2 * fov_r);
-                ctx.beginPath();
-                ctx.strokeStyle = COLORS[collision[2]];
-                ctx.moveTo(i + 0.5, (this._sh / 2) - line_height);
-                ctx.lineTo(i + 0.5, (this._sh / 2) + line_height);
-                ctx.stroke();
+                // Draw brick wall texture...
+                if (this._textured) {
+                    let sx = 0;
+                    const w = this._texture.naturalWidth;
+                    if (collision[2] === 0) {
+                        sx = collision[1] - Math.floor(collision[1]);
+                        sx = w - Math.ceil(sx * w);
+                    } else if (collision[2] === 1) {
+                        sx = collision[0] - Math.floor(collision[0]);
+                        sx = Math.floor(sx * w);
+                    } else if (collision[2] === 2) {
+                        sx = collision[1] - Math.floor(collision[1]);
+                        sx = Math.floor(sx * w);
+                    } else {
+                        sx = collision[0] - Math.floor(collision[0]);
+                        sx = w - Math.ceil(sx * w);
+                    }
+                    ctx.drawImage(this._texture, sx, 0, 1, 
+                                  this._texture.naturalHeight, i, 
+                                  (this._sh / 2) - line_height, 1, 
+                                  line_height * 2);
+                // ...or draw solid colors.
+                } else {
+                    ctx.beginPath();
+                    ctx.strokeStyle = COLORS[collision[2]];
+                    ctx.moveTo(i + 0.5, (this._sh / 2) - line_height);
+                    ctx.lineTo(i + 0.5, (this._sh / 2) + line_height);
+                    ctx.stroke();
+                }
             }
         }
     }
@@ -266,6 +305,15 @@ export default class Camera {
             this._sh = SCREEN_HEIGHT;
         } else {
             this._sh = theSh;
+        }
+    }
+
+    /** @param {boolean} theTextured - Whether the game is drawn with textures. */
+    set textured(theTextured) {
+        if (typeof theTextured !== "boolean") {
+            throw new Error("Type must be boolean.");
+        } else {
+            this._textured = theTextured;
         }
     }
 }

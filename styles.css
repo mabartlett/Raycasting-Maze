@@ -8,6 +8,7 @@ html {
 }
 
 body {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     min-height: 100vh;
     box-sizing: border-box;
     display: flex;
@@ -17,7 +18,6 @@ body {
 }
 
 fieldset {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     color: #555555;
     margin-top: 0.5rem;
     border: 0;
@@ -33,8 +33,17 @@ input[type="number"] {
     border-bottom: 1px solid #aaaaaa;
 }
 
+p {
+    text-align: center;
+    color: #555555;
+}
+
+a {
+    color: inherit;
+}
+
 #Canvas {
-    border: 1px solid #aaaaaa;
+    border: 1px solid #555555;
     margin: 0 auto;
     display: block;
 }
