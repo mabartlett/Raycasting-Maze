@@ -10,7 +10,7 @@ import Game from "./game.js";
 export const CANVAS_ID = "Canvas";
 
 /** The smallest allowed screen height or width in pixels. */
-export const SCREEN_MIN = 320;
+export const SCREEN_MIN = 240;
 
 /** The largest allowed screen height or width in pixels. */
 export const SCREEN_MAX = 3840;
@@ -31,7 +31,7 @@ export const HEIGHT_ID = "Height";
 export const FOV_ID = "FOV";
 
 /** The minimum allowed FOV in degrees. */
-export const FOV_MIN = 60;
+export const FOV_MIN = 90;
 
 /** The maximum allowed FOV in degrees. */
 export const FOV_MAX = 90;

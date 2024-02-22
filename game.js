@@ -56,8 +56,6 @@ export default class Game {
     start() {
         this._cam.updateCanvas();
         this._prev_frame = document.timeline.currentTime;
-        /* Note to self: use this pattern when adding event listeners to bind
-           "this" to the object containing the event handler. */
         document.addEventListener("keydown", (theEvent) => {
             this._cam.handleInput(theEvent, true);
         });
@@ -71,10 +69,16 @@ export default class Game {
         });
         document.querySelector(`#${WIDTH_ID}`).
                 addEventListener("change", (theEvent) => {
+            while (!theEvent.target.checkValidity()) {
+                theEvent.target.stepDown();
+            }
             this.changeDimension(Number(theEvent.target.value), "width");
         });
         document.querySelector(`#${HEIGHT_ID}`).
                 addEventListener("change", (theEvent) => {
+            while (!theEvent.target.checkValidity()) {
+                theEvent.target.stepDown();
+            }
             this.changeDimension(Number(theEvent.target.value), "height");
         });
         document.querySelector(`#${TEXTURED_ID}`).
@@ -86,7 +90,6 @@ export default class Game {
             }
             this._cam.updateCanvas();
         });
-        // The same goes for requestAnimationFrame.
         window.requestAnimationFrame((theTime) => {
             this.updateGame(theTime);
         });

@@ -26,7 +26,7 @@ const POS_DELTA = 1.5;
 const DRAW_DISTANCE = 16;
 
 /** The size of the camera's bounding box. */
-const BOUND_SIZE = 0.25;
+const BOUND_SIZE = 0.20;
 
 /** The length of world units to "slide" against walls when colliding. */
 const SLIDE = 0.0001;
