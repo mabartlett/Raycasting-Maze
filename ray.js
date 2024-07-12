@@ -3,13 +3,13 @@
  * @author Marcus Bartlett
  */
 
-import World from "./world.js";
+import { World } from "./world.js";
 
 /** The color of the ray when drawn with drawRay. */
 const COLOR = "#00ff00";
 
 /** A class describing a ray. */
-export default class Ray {
+export class Ray {
     /**
      * Constructs a Ray object.
      * @param theX {number} - The tail's x-coordinate.
@@ -176,7 +176,7 @@ export default class Ray {
      * @param theY {number} - The tip's current y-coordinate.
      * @param theTheta {number} - The ray's angle in radians.
      * @param theYSnap {boolean} - Whether to snap to the y-coordinate.
-     * @returns 
+     * @returns {number[]} - A length 2 array for the intersecting coordinates.
      */
     nearestGrid(theX, theY, theTheta, theYSnap) {
         let rv_x = theX;

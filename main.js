@@ -4,7 +4,7 @@
  * @author Marcus Bartlett
  */
 
-import Game from "./game.js";
+import { Game } from "./game.js";
 
 /** The ID of the canvas element. */
 export const CANVAS_ID = "Canvas";
@@ -31,7 +31,7 @@ export const HEIGHT_ID = "Height";
 export const FOV_ID = "FOV";
 
 /** The minimum allowed FOV in degrees. */
-export const FOV_MIN = 90;
+export const FOV_MIN = 60;
 
 /** The maximum allowed FOV in degrees. */
 export const FOV_MAX = 90;

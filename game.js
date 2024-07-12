@@ -5,9 +5,9 @@
 
 import { FOV_ID, WIDTH_ID, HEIGHT_ID, CANVAS_ID, SCREEN_MIN, 
          SCREEN_MAX, TEXTURED_ID } from "./main.js";
-import Camera from "./camera.js";
-import Ray from "./ray.js";
-import World from "./world.js";
+import { Camera } from "./camera.js";
+import { Ray } from "./ray.js";
+import { World } from "./world.js";
 
 /** A 2D array of tiles. A 0 represents emptiness and 1 represents a wall. */
 const ROOM = [
@@ -35,7 +35,7 @@ const START_X = 7;
 const START_Y = 7;
 
 /** Describes a game class, which starts and updates the game and objects. */
-export default class Game {
+export class Game {
     /** 
      * Constructs a game instance. 
      * @param {HTMLImageElement} theTexture - The brick texture.

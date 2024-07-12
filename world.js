@@ -10,7 +10,7 @@ const TOP_DOWN_COLORS = ["#000000", "#0000ff"];
 const DRAW_SIZE = 16;
 
 /** Describes the game world. */
-export default class World {
+export class World {
     /**
      * Constructs a world.
      * @param {Array} theTilemap - A 2D array of numbers representing the tiles.

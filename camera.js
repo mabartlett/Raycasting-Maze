@@ -5,7 +5,7 @@
 
 import { CANVAS_ID, SCREEN_MIN, SCREEN_MAX, SCREEN_WIDTH, SCREEN_HEIGHT, 
          FOV_MIN, FOV_MAX} from "./main.js";
-import Ray from "./ray.js";
+import { Ray } from "./ray.js";
 
 /** The colors of the faces of the walls. */
 const COLORS = ["#000000", "#004400", "#008800", "#00cc00"];
@@ -38,7 +38,7 @@ const DEBUG = false;
 const DRAW_SIZE = 16;
 
 /** Describes a camera. */
-export default class Camera {
+export class Camera {
     /**
      * Constructs a Camera instance.
      * @param {Ray} theRay - The camera's position and angle.
