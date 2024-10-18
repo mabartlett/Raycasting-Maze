@@ -1,0 +1,3 @@
+# How Raycasting Works
+
+Raycasting is a pseudo-three-dimensional (or "2.5D") screen graphics technique that was used in early first-person shooters such as ID's Wolfenstein 3D. How it works is very simple. The world it draws exists merely as a two-dimensional grid in which a space is either occupied by a wall or is empty. The camera is an object that contains two values: its position on this grid and its rotation. For every horizontal pixel of the screen, the camera casts a ray that begins from the camera's center, passes through the pixel, and extends until some constant length. If it collides with a wall, it uses the wall's distance to determine how high to draw a single pixel column on the screen. There's a lot of trigonometry involved!
